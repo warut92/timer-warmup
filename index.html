@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Timer</title>
+  <style type="text/css">
+    * {
+      font-family: monospace;
+      color: white;
+      font-size: 50px;
+      text-align: center;
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+<button onclick="startCountdown()">start</button>
+<div id="timer"></div>
+<div id="loopCount"></div>
+<audio id="countdownSound" src="path/to/your/sound.mp3" preload="auto"></audio>
+
+<script>
+// Function to create and play the countdown sound using Web Audio API
+function playCountdownSound() {
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(1000, audioContext.currentTime); // Frequency of the beep
+  gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+
+  oscillator.start();
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1); // Fade out after 0.5 seconds
+  oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+
+let loopCounter = 1; // Initialize loop counter
+
+
+// Function to start or restart the countdown
+function startCountdown() {
+  // Set the countdown duration in milliseconds
+  const countdownDuration = 15000; // 15 seconds in milliseconds
+
+  // Calculate the end time
+  const countDownDate = new Date().getTime() + countdownDuration;
+
+  // Update the countdown every 10 milliseconds (adjust as needed)
+  const interval = setInterval(function() {
+
+    // Get the current date and time
+    const now = new Date().getTime();
+
+    // Calculate the remaining time
+    const distance = countDownDate - now;
+
+    // Calculate seconds and milliseconds
+    const seconds = Math.floor(distance / 1000);
+    const milliseconds = distance % 1000;
+
+    // Display the countdown in the "timer" div
+    document.getElementById("timer").innerHTML = seconds + " : " + milliseconds.toString().substring(0, 2);
+
+    // If the countdown is over, display a message, update loop count, and restart the countdown
+    if (distance < 0) {
+      clearInterval(interval);
+      document.getElementById("timer").innerHTML = "EXPIRED";
+      document.getElementById("loopCount").innerHTML = "จำนวนรอบ: " + loopCounter++;
+      playCountdownSound();
+      // Restart the countdown after 2 seconds (adjust as needed)
+      setTimeout(startCountdown, 2000);
+    }
+  }, 10); // Update every 10 milliseconds
+}
+</script>
+
+</body>
+</html>
